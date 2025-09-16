@@ -116,7 +116,7 @@ const HistoryDeal = ({ activeKey }: { activeKey: string }) => {
       render: (_: any, record: HistoryDealCustoms) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[500]">
-            {record.volume}
+            {record.volume} {t("piece")}
           </div>
         );
       },
@@ -144,7 +144,7 @@ const HistoryDeal = ({ activeKey }: { activeKey: string }) => {
       render: (_: any, record: HistoryDealCustoms) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[500]">
-            {record.fee}
+            {record.fee} {record.feeCoin}
           </div>
         );
       },

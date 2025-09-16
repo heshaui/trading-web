@@ -179,7 +179,7 @@ const CurrentCommission = ({ activeKey }: { activeKey: string }) => {
       render: (_: any, record: CurrentCommissionColumns) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[500]">
-            {record.volume || "--"}
+            {record.volume ? `${record.volume} ${t("piece")}` : "--"} 
           </div>
         );
       },
@@ -193,7 +193,7 @@ const CurrentCommission = ({ activeKey }: { activeKey: string }) => {
       render: (_: any, record: CurrentCommissionColumns) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[500]">
-            {record.dealVolume || "--"}
+            {record.dealVolume ? `${record.dealVolume} ${t("piece")}` : "--"}
           </div>
         );
       },

@@ -19,7 +19,7 @@ import { useThemeMode } from "@/hooks/useThemeMode";
 import Image from "next/image";
 import Link from "next/link";
 import { NoData, NoAddress } from "@/components/noData";
-import WithdrawMoneyCheck from "@/components/assetsModal/withdrawMoneyCheck";
+import WithdrawMoneyCheck from "./components/withdrawMoneyCheck";
 import { useRouter } from "next/router";
 import NoUseCom from "../components/noSM";
 import {
@@ -883,11 +883,11 @@ const WithdrawMoneyPage = observer(() => {
 
   const maxWithdrawAmountBtn = useCallback(() => {
     const maxAmount = getMinWithdraw('max')
-    if (allowWithdraw || checkMaxWithdraw) {
+    // if (allowWithdraw || checkMaxWithdraw) {
       form.setFieldValue('amount', maxAmount)
       setAmountNum(maxAmount)
       checkAllowWithdraw(maxAmount);
-    }
+    // }
   }, [allowWithdraw, checkMaxWithdraw])
 
   // 获取用户24小时限额
@@ -910,7 +910,7 @@ const WithdrawMoneyPage = observer(() => {
     getUserALlLimitData();
   };
   // 手续费汇率-可用余额汇率（传baseCoinName）
-  const getWithdrawFee = (number: number, baseCoinName?: string,scaale:number|false=false) => {
+  const getWithdrawFee =useCallback ((number: number, baseCoinName?: string,scaale:number|false=false) => {
     let coinName = "";
     if (baseCoinName) {
       coinName = baseCoinName || "";
@@ -931,7 +931,7 @@ const WithdrawMoneyPage = observer(() => {
       symbol,
       text: !scaale?`${rate} ${shortName}`:`${roundDown(rate,scaale)} ${shortName}`,
     };
-  };
+  }, [coninInfo, coinSelect, rateKey])
 
   // 自定义提现网络校验规则
   const validateProtocol = (rule: any, value: any, callback: any) => {
@@ -1035,7 +1035,7 @@ const WithdrawMoneyPage = observer(() => {
                           </span>
                         </div>
                         <div className="flex-y align-end font-14 font-w-500">
-                          <span>{option.data.balance}</span>
+                          <span>{getCoinRound(option.data.coinName,option.data.balance)}</span>
                           <span
                             className={`${styles.tip_color} font-w-400 font-12`}
                           >{`≈${getWithdrawFee(
@@ -1294,10 +1294,10 @@ const WithdrawMoneyPage = observer(() => {
                           </p>
                           <p className={`${styles.tip_color2} `}>
                             {/* {`${t('withdrawMoney.fee')} ${division(option.data.withdrawFee, 100)} %`} */}
-                            {`${t("withdrawMoney.fee")} ${option.data.minWithdrawFee || 0
+                            {`${t("withdrawMoney.fee")} ${getCoinRound(coninInfo.coinName,option.data.minWithdrawFee || 0)
                               }${withdrawFeeInfo?.coinName
                               }≈${withdrawFeeInfo?.symbol
-                              } ${withdrawFeeInfo?.rate}`}
+                              } ${roundDown(withdrawFeeInfo?.rate,2)}`}
                           </p>
                         </div>
                       );
@@ -1313,11 +1313,8 @@ const WithdrawMoneyPage = observer(() => {
                             size={16}
                           />
                           <span>
-                            {/* 请注意，这里仅展示了Metawave平台所支持的充币网络，如果您使用本平台不支持的网络充币，将可能导致资产损失。 */}
-                            {t("withdrawMoney.networkWarning2", {
-                              platformName:
-                                allConfig?.tenant_cache_name || "--",
-                            })}
+                            {/* 请确保您本次提现的收款平台支持您要提出的币种和您提币使用的网络。如果您还不能确定，建议您先和收币平台确认后再提币。 */}
+                            {t("withdrawMoney.networkWarning2")}
                           </span>
                         </p>
                         {menu}
@@ -1411,8 +1408,9 @@ const WithdrawMoneyPage = observer(() => {
                       </p>
                       <span className={`${styles.tip_color2}`}>|</span>
                       <button
-                        className={`${checkMaxWithdraw ? "theme_color" : styles.tip_color2
-                          } pl-2`}
+                        // className={`${checkMaxWithdraw ? "theme_color" : styles.tip_color2
+                        //   } pl-2`}
+                        className={` theme_color pl-2`}
                         onClick={() => {
                           maxWithdrawAmountBtn();
                         }}
@@ -1504,7 +1502,8 @@ const WithdrawMoneyPage = observer(() => {
                   {/* default_btn */}
                   <button
                     type="submit"
-                    className={`${styles.withdraw_btn} mr-2 ${allowWithdraw
+                    className={`${styles.withdraw_btn} mr-2
+                     ${allowWithdraw
                       ? "default_btn"
                       : "disabled_btn2 cursor-not-allowed"
                       }`}

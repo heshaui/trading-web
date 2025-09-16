@@ -96,6 +96,7 @@
   "submitTime": "Order Time",
   "triggerTime": "Trigger Time",
   "expirationTime": "Expiration Time",
+  "piece": "Cont",
   "calculator": {
     "title": "Calculator",
     "profitTab": "Profit",
@@ -228,7 +229,8 @@
       "open": "Open Status",
       "status": "Status",
       "cancelAll": "Cancel All",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "piece": "Cont"
     },
     "historyColumn": {
       "symbol": "Contract",
@@ -247,7 +249,8 @@
       "contractName": "Contract Name",
       "id": "Order ID",
       "open": "Open Status",
-      "status": "Status"
+      "status": "Status",
+      "piece": "Cont"
     },
     "tradeRecordColumn": {
       "symbol": "Contract",
@@ -264,7 +267,8 @@
       "contractId": "Contract ID",
       "historyRealizedAmount": "History Realized Amount",
       "ctime": "Create Time",
-      "id": "Position ID"
+      "id": "Position ID",
+      "piece": "Cont"
     },
     "tradeHistoryColumn": {
       "symbol": "Contract",
@@ -280,7 +284,8 @@
       "ctime": "Create Time",
       "contractName": "Contract Name",
       "id": "Order ID",
-      "open": "Open Status"
+      "open": "Open Status",
+      "piece": "Cont"
     },
     "common": {
       "crossMargin": "Cross Margin",

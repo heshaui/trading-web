@@ -96,6 +96,7 @@
   "submitTime": "提交委托时间",
   "triggerTime": "触发时间",
   "expirationTime": "过期时间",
+  "piece": "张",
   "calculator": {
     "title": "计算器",
     "profitTab": "收益",
@@ -216,13 +217,13 @@
       "pricePrecision": "价格精度",
       "side": "方向",
       "positionType": "仓位类型",
-      "avgPrice": "平均价格",
+      "avgPrice": "成交均价",
       "tradeFee": "交易手续费",
       "type": "类型",
-      "mtime": "修改时间",
+      "mtime": "时间",
       "volume": "数量",
       "dealVolume": "成交数量",
-      "price": "价格",
+      "price": "委托价格",
       "contractId": "合约ID",
       "ctime": "创建时间",
       "contractName": "合约名称",
@@ -230,26 +231,28 @@
       "open": "开仓状态",
       "status": "状态",
       "cancelAll": "全撤",
-      "cancel": "取消"
+      "cancel": "取消",
+      "piece": "张"
     },
     "historyColumn": {
       "symbol": "合约",
       "pricePrecision": "价格精度",
       "side": "方向",
       "positionType": "仓位类型",
-      "avgPrice": "平均价格",
-      "tradeFee": "交易手续费",
-      "realizedAmount": "已实现盈亏",
+      "avgPrice": "成交均价",
+      "tradeFee": "手续费",
+      "realizedAmount": "盈亏",
       "type": "类型",
-      "volume": "数量",
+      "volume": "委托数量",
       "dealVolume": "成交数量",
-      "price": "价格",
+      "price": "委托价格",
       "contractId": "合约ID",
-      "ctime": "创建时间",
+      "ctime": "时间",
       "contractName": "合约名称",
       "id": "订单ID",
       "open": "开仓状态",
-      "status": "状态"
+      "status": "状态",
+      "piece": "张"
     },
     "tradeRecordColumn": {
       "openAvgPrice": "开仓均价",
@@ -263,9 +266,10 @@
       "orderSide": "订单方向",
       "profitRealizedAmount": "盈亏",
       "contractId": "合约ID",
-      "historyRealizedAmount": "历史已实现盈亏",
+      "historyRealizedAmount": "已实现盈亏",
       "ctime": "创建时间",
-      "id": "仓位ID"
+      "id": "仓位ID",
+      "piece": "张"
     },
     "tradeHistoryColumn": {
       "symbol": "合约",
@@ -274,14 +278,15 @@
       "role": "角色",
       "fee": "手续费",
       "feeCoinPrecision": "手续费币种精度",
-      "volume": "数量",
+      "volume": "成交数量",
       "feeCoin": "手续费币种",
-      "price": "价格",
+      "price": "成交均价",
       "contractId": "合约ID",
       "ctime": "创建时间",
       "contractName": "合约名称",
       "id": "订单ID",
-      "open": "开仓状态"
+      "open": "开仓状态",
+      "piece": "张"
     },
     "common": {
       "crossMargin": "全仓",

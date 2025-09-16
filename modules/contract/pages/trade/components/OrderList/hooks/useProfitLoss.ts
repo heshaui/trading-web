@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { toast } from "sonner";
 import dayjs from "dayjs";
 import { getHistoryPositionList } from "@/services/contract";
-import { PositionType, Side } from "../configs/columns";
+import { PositionType, Side } from "../configs/constants";
 
 // 盈亏记录接口
 interface TradeRecord {

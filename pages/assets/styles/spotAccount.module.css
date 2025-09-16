@@ -119,7 +119,7 @@
 .input_box2,.select_box {
     height: 50px !important;
     min-width: 250px;
-    color: var(--text-color6) !important;
+    color: var(--text-color5) !important;
 }
 .input_box3{
     /* width: 38vw ; */
@@ -127,7 +127,7 @@
     height: 50px !important;
     /* background: var(--background7) !important; */
     background:transparent !important;
-    color: var(--text-color6) !important;
+    color: var(--text-color5) !important;
 }
 .input_box5{
     /* width: 38vw ; */

@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { toast } from "sonner";
 import dayjs from "dayjs";
 import { getCurrentOrderList, cancelOrder } from "@/services/contract";
-import { Side, PositionType, Type, Open, Status } from "../configs/columns";
+import { Side, PositionType, Type, Open, Status } from "../configs/constants";
 
 // 普通委托接口
 interface OrdinaryCommission {

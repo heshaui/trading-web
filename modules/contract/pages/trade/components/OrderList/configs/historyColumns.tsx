@@ -46,13 +46,13 @@ export const createHistoryColumns = ({
       </div>
     ),
   },
-  // 委托价格
+  // 委托价格 为0显示市价
   {
     title: t("order.historyColumn.price"),
     dataIndex: "price",
     key: "price",
     render: (_: any, record: HistoryCommission) => (
-      <div className="text-[12px] font-[500]">{record.price}</div>
+      <div className="text-[12px] font-[500]">{record.price === 0 ? t("marketOrder") : record.price}</div>
     ),
   },
   // 委托数量
@@ -61,7 +61,7 @@ export const createHistoryColumns = ({
     dataIndex: "volume",
     key: "volume",
     render: (_: any, record: HistoryCommission) => (
-      <div className="text-[12px] font-[500]">{record.volume}</div>
+      <div className="text-[12px] font-[500]">{record.volume} {t("order.historyColumn.piece")}</div>
     ),
   },
   //成交数量
@@ -70,7 +70,7 @@ export const createHistoryColumns = ({
     dataIndex: "dealVolume",
     key: "dealVolume",
     render: (_: any, record: HistoryCommission) => (
-      <div className="text-[12px] font-[500]">{record.dealVolume}</div>
+      <div className="text-[12px] font-[500]">{record.dealVolume} {t("order.historyColumn.piece")}</div>
     ),
   },
   // 成交均价
@@ -82,7 +82,7 @@ export const createHistoryColumns = ({
       <div className="text-[12px] font-[500]">{record.avgPrice}</div>
     ),
   },
-  // 盈亏
+  // 盈亏 开仓显示0.00 平仓显示具体数值
   {
     title: t("order.historyColumn.realizedAmount"),
     dataIndex: "realizedAmount",
@@ -99,9 +99,9 @@ export const createHistoryColumns = ({
               : "",
         }}
       >
-        {record.realizedAmount}
+        { record.realizedAmount > 0 ? record.realizedAmount : "0.00"}
       </div>
-    ),
+  ),
   },
   // 手续费
   {
