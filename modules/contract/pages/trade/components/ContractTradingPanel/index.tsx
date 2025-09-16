@@ -168,9 +168,9 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
       parseFloat(orderBookData.tick.asks[0][0]) : lastPrice;
 
     if (side === "BUY") {
-      calculationPrice = askPrice;
+      calculationPrice = askPrice; // 买入使用卖一价(ask price)
     } else if (side === "SELL") {
-      calculationPrice = bidPrice;
+      calculationPrice = bidPrice; // 卖出使用买一价(bid price)
     } else {
       calculationPrice = lastPrice;
     }
@@ -228,23 +228,18 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
     const lastPrice = parseFloat(priceData.price);
     if (!lastPrice || lastPrice <= 0) return 0;
 
-    // 限价单需要用实际价格，市价单可以用最新价估算
+    // 限价单使用用户输入的价格，市价单使用市场价格
     if (!isMarketOrder) {
-      // 限价单：从深度数据中获取真实的买一价和卖一价
-      const bidPrice = orderBookData?.tick?.buys?.[0]?.[0] ? 
-        parseFloat(orderBookData.tick.buys[0][0]) : lastPrice;
-      const askPrice = orderBookData?.tick?.asks?.[0]?.[0] ? 
-        parseFloat(orderBookData.tick.asks[0][0]) : lastPrice;
-
-      if (side === "BUY") {
-        calculationPrice = askPrice;
-      } else if (side === "SELL") {
-        calculationPrice = bidPrice;
+      // 限价单：使用用户输入的委托价格
+      const userInputPrice = typeof price === "string" ? parseFloat(price) : price;
+      if (userInputPrice && userInputPrice > 0) {
+        calculationPrice = userInputPrice;
       } else {
+        // 如果没有用户输入价格，回退到最新价
         calculationPrice = lastPrice;
       }
     } else {
-      // 市价单：使用最新价
+      // 市价单：使用最新价估算
       calculationPrice = lastPrice;
     }
 
@@ -252,17 +247,26 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
 
     let cost = 0;
 
-    if (isMarketOrder) {
-      // 市价单成本公式: (量÷杠杆)×汇率
-      cost = (quantityNum / leverageLevel) * marginRate;
-    } else {
-      // 限价单成本公式
-      if (contractSide === 1) {
-        // 正向合约: (量×面值×价格÷杠杆)×汇率
+    // 统一的成本计算公式，市价单和限价单使用相同逻辑，只是价格来源不同
+    const coUnitType = contractInfo.coUnitType || 2; // 1: 量(标的货币), 2: 张
+
+    if (contractSide === 1) {
+      // 正向合约
+      if (coUnitType === 2) {
+        // 数量单位: 张 - 公式: (量×面值×价格÷杠杆)×汇率
         cost = (quantityNum * faceValue * calculationPrice / leverageLevel) * marginRate;
       } else {
-        // 反向合约: (量×面值÷价格÷杠杆)×汇率
+        // 数量单位: 量 - 公式: (量×价格÷杠杆)×汇率
+        cost = (quantityNum * calculationPrice / leverageLevel) * marginRate;
+      }
+    } else {
+      // 反向合约 (contractSide === 0)
+      if (coUnitType === 2) {
+        // 数量单位: 张 - 公式: (量×面值÷价格÷杠杆)×汇率
         cost = (quantityNum * faceValue / calculationPrice / leverageLevel) * marginRate;
+      } else {
+        // 数量单位: 量 - 公式: (量÷价格÷杠杆)×汇率
+        cost = (quantityNum / calculationPrice / leverageLevel) * marginRate;
       }
     }
 
