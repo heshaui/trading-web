@@ -387,11 +387,11 @@ const SpotTradePage = ({ onOrderSuccess, orderData, tradePrice }: Props) => {
 
     // 市价模式下使用最新市场价格
     if (priceDisabled) {
-      // 获取最新价格
-      const { buyPrice } = getLatestPrices();
+      // 获取最新价格 - 买入使用卖一价
+      const { askPrice } = getLatestPrices();
 
-      if (buyPrice && buyPrice > 0) {
-        const amount = account / buyPrice;
+      if (askPrice && askPrice > 0) {
+        const amount = account / askPrice;
         form.setFieldsValue({
           amount: formatWithPrecision(amount, currentPair?.coinScale || 8),
         });
@@ -672,8 +672,8 @@ const SpotTradePage = ({ onOrderSuccess, orderData, tradePrice }: Props) => {
     const latestData = sortedData[0].data;
 
     return {
-      buyPrice: latestData.buy_price,
-      sellPrice: latestData.sell_price,
+      bidPrice: latestData.buy_price,  // 买一价(bid price) - 买方出价
+      askPrice: latestData.sell_price, // 卖一价(ask price) - 卖方出价
       tradePrice: latestData.trade_price, // 添加最新成交价
     };
   };
@@ -690,17 +690,17 @@ const SpotTradePage = ({ onOrderSuccess, orderData, tradePrice }: Props) => {
     // 获取用户输入的价格
     const userInputPrice = form.getFieldValue("price");
     // 如果没有用户输入的价格，则使用市场价格
-    const { buyPrice, sellPrice } = getLatestPrices();
+    const { bidPrice, askPrice } = getLatestPrices();
 
     // 如果没有价格数据，直接返回0
-    if ((!userInputPrice && !buyPrice) || (!userInputPrice && !sellPrice)) {
+    if ((!userInputPrice && !askPrice) || (!userInputPrice && !bidPrice)) {
       return { availableToBuy: 0, availableToSell: coinBalance };
     }
 
     // 计算可买数量
-    // 如果用户输入了价格且不是市价单，则使用用户输入的价格
+    // 如果用户输入了价格且不是市价单，则使用用户输入的价格；否则买入使用卖一价
     const priceForCalculation =
-      !priceDisabled && userInputPrice ? userInputPrice : buyPrice;
+      !priceDisabled && userInputPrice ? userInputPrice : askPrice;
     const availableToBuy = formatWithPrecision(
       baseBalance / priceForCalculation,
       currentPair?.coinScale || 8
@@ -723,11 +723,11 @@ const SpotTradePage = ({ onOrderSuccess, orderData, tradePrice }: Props) => {
     const price = form.getFieldValue("price");
 
     if (!price || price <= 0) {
-      // 如果没有有效价格，使用市场价格
-      const { buyPrice } = getLatestPrices();
-      return buyPrice
+      // 如果没有有效价格，使用市场价格 - 买入使用卖一价
+      const { askPrice } = getLatestPrices();
+      return askPrice
         ? formatWithPrecision(
-            baseBalance / buyPrice,
+            baseBalance / askPrice,
             currentPair?.coinScale || 8
           )
         : "0";
