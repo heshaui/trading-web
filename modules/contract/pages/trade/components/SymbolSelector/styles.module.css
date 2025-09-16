@@ -202,6 +202,19 @@
   font-weight: 600;
   color: var(--text-color5);
   line-height: 1.2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.symbol_name span {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-color6);
+  background-color: var(--background14);
+  padding: 2px 6px;
+  border-radius: 3px;
+  line-height: 1;
 }
 
 .symbol_type {
@@ -218,7 +231,12 @@
   width: 80px;
 }
 
-.symbol_price_info:first-of-type {
+.symbol_data_right {
+  display: flex;
+  align-items: center;
+}
+
+.symbol_data_right .symbol_price_info:first-child {
   margin-right: 16px;
 }
 

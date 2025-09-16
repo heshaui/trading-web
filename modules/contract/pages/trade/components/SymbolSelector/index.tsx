@@ -74,7 +74,7 @@ const SymbolItem: React.FC<{
     className={`${styles.symbol_item} ${isSelected ? styles.selected : ''}`}
     onClick={() => onSymbolClick(item)}
   >
-    <div style={{ display: 'flex', alignItems: 'center' }}>
+    <div style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
       {/* <button
         className={`${styles.favorite_btn} ${item.isFavorite ? styles.favorited : ''}`}
         onClick={(e) => {
@@ -85,19 +85,20 @@ const SymbolItem: React.FC<{
         <Iconify icon={item.isFavorite ? "mdi:star" : "mdi:star-outline"} />
       </button> */}
       <div className={styles.symbol_info}>
-        <div className={styles.symbol_name}>{item.base}/{item.quote}</div>
-        <div className={styles.symbol_type}>{item.contractShowType}</div>
+        <div className={styles.symbol_name}>{item.base}/{item.quote} <span>{item.contractShowType}</span></div>
         <div className={styles.symbol_type}>{item.volume || '--'}</div>
       </div>
     </div>
-    <div className={styles.symbol_price_info}>
-      <div className={styles.symbol_price}>{item.price || '--'}</div>
-    </div>
-    <div className={styles.symbol_price_info}>
-      <div className={`${styles.symbol_change} ${item.changePercent?.startsWith('+') ? 'positive' :
-        item.changePercent?.startsWith('-') ? 'negative' : 'neutral'
-        }`}>
-        {item.changePercent|| '--'}
+    <div className={styles.symbol_data_right}>
+      <div className={styles.symbol_price_info}>
+        <div className={styles.symbol_price}>{item.price || '--'}</div>
+      </div>
+      <div className={styles.symbol_price_info}>
+        <div className={`${styles.symbol_change} ${item.changePercent?.startsWith('+') ? 'positive' :
+          item.changePercent?.startsWith('-') ? 'negative' : 'neutral'
+          }`}>
+          {item.changePercent|| '--'}
+        </div>
       </div>
     </div>
   </div>
