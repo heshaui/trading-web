@@ -883,11 +883,11 @@ const WithdrawMoneyPage = observer(() => {
 
   const maxWithdrawAmountBtn = useCallback(() => {
     const maxAmount = getMinWithdraw('max')
-    if (allowWithdraw || checkMaxWithdraw) {
+    // if (allowWithdraw || checkMaxWithdraw) {
       form.setFieldValue('amount', maxAmount)
       setAmountNum(maxAmount)
       checkAllowWithdraw(maxAmount);
-    }
+    // }
   }, [allowWithdraw, checkMaxWithdraw])
 
   // 获取用户24小时限额
@@ -1408,8 +1408,9 @@ const WithdrawMoneyPage = observer(() => {
                       </p>
                       <span className={`${styles.tip_color2}`}>|</span>
                       <button
-                        className={`${checkMaxWithdraw ? "theme_color" : styles.tip_color2
-                          } pl-2`}
+                        // className={`${checkMaxWithdraw ? "theme_color" : styles.tip_color2
+                        //   } pl-2`}
+                        className={` theme_color pl-2`}
                         onClick={() => {
                           maxWithdrawAmountBtn();
                         }}
@@ -1501,7 +1502,8 @@ const WithdrawMoneyPage = observer(() => {
                   {/* default_btn */}
                   <button
                     type="submit"
-                    className={`${styles.withdraw_btn} mr-2 ${allowWithdraw
+                    className={`${styles.withdraw_btn} mr-2
+                     ${allowWithdraw
                       ? "default_btn"
                       : "disabled_btn2 cursor-not-allowed"
                       }`}
