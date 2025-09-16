@@ -1,8 +1,8 @@
 // import { Button, Form, Input,Tabs } from "antd";
 import { Segmented, ConfigProvider } from "antd";
 import { useState } from "react";
-import Mailbox from "./login_mailbox";
-import Phonebox from "./login_phonebox";
+import Mailbox from "./loginMailbox";
+import Phonebox from "./loginPhonebox";
 import {
   LoginStateEnum,
   useLoginStateContext,

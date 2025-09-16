@@ -7,8 +7,8 @@ import React, { useState } from "react";
 // import { toast } from "sonner";
 // import { ReturnButton } from "./components/ReturnButton";
 import { LoginStateEnum, useLoginStateContext, RegisterTypeEnum, useRegisterTypeContext } from "@/config/register-providers/LoginStateProvider";
-import Mailbox from "./register_mailbox"
-import Phonebox from "./register_phonebox"
+import Mailbox from "./registerMailbox"
+import Phonebox from "./registerPhonebox"
 // import PhoneEmailAuthcode from "./components/authCode_phoneAndMail";
 import styles from '../styles/login.module.css'
 import { useTranslation } from 'next-i18next';

@@ -19,7 +19,7 @@ import { useThemeMode } from "@/hooks/useThemeMode";
 import Image from "next/image";
 import Link from "next/link";
 import { NoData, NoAddress } from "@/components/noData";
-import WithdrawMoneyCheck from "./components/withdrawMoneyCheck";
+import WithdrawMoneyCheck from "../components/withdrawMoneyCheck";
 import { useRouter } from "next/router";
 import NoUseCom from "../components/noSM";
 import {

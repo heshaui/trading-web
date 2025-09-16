@@ -9,7 +9,7 @@ import RegisterForm from "./components/RegisterForm";
 import { LoginStateProvider, RegisterTypeProvider } from "@/config/register-providers/LoginStateProvider";
 // import "./styles/login.css"
 import styles from './styles/login.module.css'
-import PhoneEmailAuthcode from "./components/authCode_phoneAndMail";
+import PhoneEmailAuthcode from "./components/authCodePhoneAndMail";
 // import GoogleAuthcode from "./components/authCode_google";
 // const { VITE_APP_HOMEPAGE: HOMEPAGE } = import.meta.env;
 // const HOMEPAGE = '/';

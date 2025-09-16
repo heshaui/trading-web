@@ -9,18 +9,18 @@ import styles from "./styles/safe.module.css";
 import { Iconify } from "@/components/icon/index";
 // import PhoneCodeSelector from "@/components/PhoneCodeSelector"
 import { useState } from "react";
-import {
-  getSmsCode,
-  getEmailCode,
-  getEmailSafe,
-  setPasswordSafe,
-  getPasswordSmsCode,
-  getPasswordEmailCode,
-} from "@/services/safeCenter";
+// import {
+//   getSmsCode,
+//   getEmailCode,
+//   getEmailSafe,
+//   setPasswordSafe,
+//   getPasswordSmsCode,
+//   getPasswordEmailCode,
+// } from "@/services/safeCenter";
 import { toast } from "sonner";
 import { encryptData, encryptEmail, encryptPhoneNumber } from "@/utils/encrypt";
 import QuestionModal from "@/components/myModal/questionModal";
-import TotastModal from "./totastModal";
+// import TotastModal from "./TotastModal";
 import {
   getWithdrawalCheckSmsCode,
   getWithdrawalCheckEmailCode,
@@ -78,7 +78,7 @@ type Props = {
   acountInfo: SafeDataType;
 };
 
-function AntiSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
+function WithdrawMoneySafe({ open, onCancel, type, onOk, acountInfo }: Props) {
   const { t } = useTranslation(["assets"]);
   // const router = useRouter();
   const [isCounting, setIsCounting] = useState(false);
@@ -549,4 +549,4 @@ function AntiSafeModal({ open, onCancel, type, onOk, acountInfo }: Props) {
   );
 }
 
-export default AntiSafeModal;
+export default WithdrawMoneySafe;

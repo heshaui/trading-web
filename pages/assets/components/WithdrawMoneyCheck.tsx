@@ -11,10 +11,10 @@ import { updateUserCenter } from '@/services/userCenter'
 import { toast } from "sonner";
 import { useState } from "react";
 import dayjs from "dayjs";
-import ErrModal from "./totastModal";
+// import ErrModal from "./TotastModal";
 import { creatWithdraw } from '@/services/assets'
 import { encryptData } from "@/hooks/user-encrypt";
-import WithdrawMoneySafe from "./withdrawMoneySafe_Modal";
+import WithdrawMoneySafe from "./withdrawMoneySafeModal";
 import TotastModal from "./totastModal";
 import { getUserInfo } from '@/hooks/userInfo';
 import { useTranslation } from "next-i18next";

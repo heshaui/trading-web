@@ -36,7 +36,7 @@ import {
 } from "@/type/assets/assetsAccount/toUp";
 import appStore from "@/store";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
-import { DownOutlined } from "@ant-design/icons";
+// import { DownOutlined } from "@ant-design/icons";
 
 const TopUpPage = () => {
   const { t } = useTranslation("assets");
@@ -249,7 +249,7 @@ const TopUpPage = () => {
           const protocol = coinExtAll.find(
             (protocol: any) => protocol.id === item.protocolId
           );
-          return {
+        return {
             ...item,
             ...protocol,
             label: `${protocol?.protocolName || "--"}(${protocol?.protocol || "--"})`,
@@ -612,11 +612,11 @@ const TopUpPage = () => {
                                     </div> */}
 
                         <div className="flex-x align-center font-14 font-w-400">
-                          <Image
+                        <Image
                             src={option.data.iconUrl}
                             alt={option.data.coinName}
-                            width={20}
-                            height={20}
+                          width={20}
+                          height={20}
                             className={styles.coninIcon}
                           />
                           &nbsp;
@@ -624,7 +624,7 @@ const TopUpPage = () => {
                           &nbsp;
                           <span className={styles.tip_color}>
                             {option.data.nameDefault}
-                          </span>
+                        </span>
                         </div>
                         {/* <div className="flex-y align-end font-14 font-w-500">
                           <span>{option.data.balance}</span>
@@ -660,7 +660,7 @@ const TopUpPage = () => {
                           {searchHistory.length > 0 ? (
                             <div className="mt-2 mb-2_5 flex-x">
                               {searchHistory.map((item, index) => (
-                                <button
+                            <button
                                   type="button"
                                   key={`key-${index}`}
                                   className={`${styles.selsect_btn} cancel_btn5 mr-2 flex-x align-center justify-between font-14`}
@@ -679,8 +679,8 @@ const TopUpPage = () => {
                                     }}
                                   />
                                   {item.coinName}
-                                </button>
-                              ))}
+                            </button>
+                          ))}
                             </div>
                           ) : (
                             <p className="mt-2 mb-2_5">
@@ -710,7 +710,7 @@ const TopUpPage = () => {
                     className={`${styles.btn_style} cancel_btn5 mr-2`}
                     onClick={() => setFormCoin(item.value)}>
                     {item.coinName}
-                  </button>
+                </button>
                 ))}
               </div>
             </>
@@ -822,12 +822,12 @@ const TopUpPage = () => {
                 <Skeleton.Node active={addAddressLoading} style={{ width: 86, height: 86 }} />
                 <Skeleton active className="ml-3" title={false} paragraph={{ rows: 3 }} loading={true} />
               </div> : <>
-                <div className={`${styles.qr_code}`}>
+              <div className={`${styles.qr_code}`}>
                   <QRCode value={walletAddress?.address || '--'}
-                    color={isDayMode ? "#000" : "#fff"}
-                    bgColor={isDayMode ? "#fff" : "#000"}
-                    bordered={false}
-                    size={86}
+                  color={isDayMode ? "#000" : "#fff"}
+                  bgColor={isDayMode ? "#fff" : "#000"}
+                  bordered={false}
+                  size={86}
                     status={walletAddress?.address ?  undefined:'loading' }
                   />
                 </div>
@@ -845,8 +845,8 @@ const TopUpPage = () => {
                       size={20}
                       className="shrink-0 ml-2 w-5 h-5"
                       onClick={() => copyFn(walletAddress?.address || '')}
-                    />
-                  </div>
+                />
+              </div>
                 </div>
               </>}
               {/* </Skeleton> */}
@@ -966,7 +966,7 @@ const TopUpPage = () => {
           />
         </div>
 
-        <div className={`${styles.card_box}  mt-6  `}>
+          <div className={`${styles.card_box}  mt-6  `}>
           {(() => {
             // const verified11 = currentUserInfo?.verifiedRechargeStatus === 1 && currentUserInfo?.realnessStatus === 1 //已认证且实名-允许
             const verified10 = userInfo?.verifiedRechargeStatus === 1 && userInfo?.realnessStatus !== 1 //已认证且未实名-判断unverifiedRechargeStatus
@@ -980,24 +980,24 @@ const TopUpPage = () => {
 
             return needsMerchantRecharge ? <NoUseCom type="5" /> : needsKyc ? <NoUseCom type="1" /> : <></>
           })()}
-          <div
-            className={` w-full flex-x justify-between ${styles.card_content2}`}
-          >
+            <div
+              className={` w-full flex-x justify-between ${styles.card_content2}`}
+            >
             <div className={`${styles.step_box} flex-1 max-w-[500px]`} style={{ width: '50%' }}>
-              <ConfigProvider
-                theme={{
-                  components: {
-                    Select: {
-                      clearBg: "#ffffff",
+                <ConfigProvider
+                  theme={{
+                    components: {
+                      Select: {
+                        clearBg: "#ffffff",
                       selectorBg: "transparent", // select框背景色 //var(--background7)
-                      singleItemHeightLG: 50,
-                      paddingXXS: 10, // 下拉框选项最小内边距
-                      optionHeight: 40, //选项高度
-                      optionLineHeight: 2, //选项行高
-                    },
-                    Steps: {
-                      navArrowColor: "var(--text-color6)",
-                    },
+                        singleItemHeightLG: 50,
+                        paddingXXS: 10, // 下拉框选项最小内边距
+                        optionHeight: 40, //选项高度
+                        optionLineHeight: 2, //选项行高
+                      },
+                      Steps: {
+                        navArrowColor: "var(--text-color6)",
+                      },
                     Button: {
                       controlHeightLG: 50,
                       defaultBg: "var(--theme-color)",
@@ -1015,10 +1015,10 @@ const TopUpPage = () => {
                       defaultHoverBg: "var(--theme-color)",
                       defaultHoverBorderColor: "var(--theme-color)",
                       defaultHoverColor: "#fff",
+                      },
                     },
-                  },
-                }}
-              >
+                  }}
+                >
                 <Form form={form} disabled={isNotAllowToUp}>
                   <Steps
                     direction="vertical"
@@ -1028,11 +1028,11 @@ const TopUpPage = () => {
                     className="custom-steps"
                   />
                 </Form>
-              </ConfigProvider>
-            </div>
+                </ConfigProvider>
+              </div>
             <TopUpSteps type="topUp" className="flex-1 ml-5 max-w-[500px]" style={{ width: '50%' }} />
-          </div>
-          <div className={`${styles.table_box} w-full `}>
+            </div>
+            <div className={`${styles.table_box} w-full `}>
             <RechargeTable coinId={coinInfo?.coinId || form.getFieldValue('coinName') || ''} />
           </div>
         </div>
