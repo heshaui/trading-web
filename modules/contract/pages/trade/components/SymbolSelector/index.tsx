@@ -130,13 +130,12 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
   onToggleFavorite,
   marketInfoData
 }) => {
-  const { t } = useTranslation(["spot", "contract"]);
+  const { t } = useTranslation(["contract", "spot"]);
   const [searchValue, setSearchValue] = useState('');
   const [dropdownVisible, setDropdownVisible] = useState(false);
 
   const [activeTab, setActiveTab] = useState('usd-contract');
 
-  console.log("marketInfoData", marketInfoData);
   // 将 marketInfoData 的数据合并到 symbolList 中
   const enrichedSymbolList = React.useMemo(() => {
     if (!marketInfoData || !symbolList) return symbolList;
@@ -279,14 +278,23 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
     return availableTypes.length > 0 ? typeToKeyMap[availableTypes[0] as keyof typeof typeToKeyMap] : 'usd-contract';
   };
 
+  // 预先获取翻译文本 - 明确指定命名空间
+  const headerTexts = {
+    contractVolume: t('symbolSelector.contractVolume', { ns: 'contract' }) || '合约/市值',
+    latestPrice: t('symbolSelector.latestPrice', { ns: 'contract' }) || '最新价',
+    priceChange: t('symbolSelector.priceChange', { ns: 'contract' }) || '涨跌幅'
+  };
+
+  console.log('翻译文本:', headerTexts);
+
   // 渲染动态的Tab.TabPane
   const renderTabPanes = () => {
     const availableTypes = getAvailableContractTypes();
     const tabConfig = [
-      { key: 'coin-contract', type: 'coin', label: t('contract:symbolSelector.coinContract') },
-      { key: 'usd-contract', type: 'usdt', label: t('contract:symbolSelector.usdtContract') },
-      { key: 'mix-contract', type: 'mix', label: t('contract:symbolSelector.mixContract') },
-      { key: 'sim-contract', type: 'sim', label: t('contract:symbolSelector.simContract') }
+      { key: 'coin-contract', type: 'coin', label: t('symbolSelector.coinContract') },
+      { key: 'usd-contract', type: 'usdt', label: t('symbolSelector.usdtContract') },
+      { key: 'mix-contract', type: 'mix', label: t('symbolSelector.mixContract') },
+      { key: 'sim-contract', type: 'sim', label: t('symbolSelector.simContract') }
     ];
 
     return tabConfig
@@ -295,11 +303,11 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
         <Tabs.TabPane tab={config.label} key={config.key}>
           <div className={styles.symbol_header}>
             <div className={styles.symbol_header_left}>
-              <span>合约/市值</span>
+              <span>{headerTexts.contractVolume}</span>
             </div>
             <div className={styles.symbol_header_right}>
-              <span>最新价</span>
-              <span>涨跌幅</span>
+              <span>{headerTexts.latestPrice}</span>
+              <span>{headerTexts.priceChange}</span>
             </div>
           </div>
           <div className={styles.symbol_list}>
@@ -321,7 +329,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
     <div className={styles.dropdown_container}>
       <div className={styles.search_container}>
         <Input
-          placeholder={t('spot.header.search')}
+          placeholder={t('spot.header.search', { ns: 'spot' })}
           prefix={<SearchOutlined />}
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
@@ -358,7 +366,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
             ? currentSymbol
             : currentSymbol?.base && currentSymbol?.quote
               ? `${currentSymbol.base}/${currentSymbol.quote}`
-              : t('contract:symbolSelector.selectContract')
+              : t('symbolSelector.selectContract', { ns: 'contract' })
           }
         </span>
         <Iconify icon="mdi:chevron-down" />

@@ -392,7 +392,10 @@
     "coinContract": "코인 선물",
     "usdtContract": "USDT 선물",
     "mixContract": "混合 선물",
-    "simContract": "모의 거래"
+    "simContract": "모의 거래",
+    "contractVolume": "계약/거래량",
+    "latestPrice": "최신 가격",
+    "priceChange": "변동"
   },
   "marginMode": {
     "title": "증거금 모드",

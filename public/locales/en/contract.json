@@ -48,6 +48,7 @@
   "fillOrKill": "Fill or Kill",
   "canBuy": "Can Buy",
   "canSell": "Can Sell",
+
   "cost": "Cost",
   "advancedSettings": "Advanced Settings",
   "symbol": "Contract",
@@ -410,7 +411,10 @@
     "coinContract": "Coin-Margined",
     "usdtContract": "USDT-Margined",
     "mixContract": "Mixed",
-    "simContract": "Simulation"
+    "simContract": "Simulation",
+    "contractVolume": "Contract/Volume",
+    "latestPrice": "Latest Price",
+    "priceChange": "Change"
   },
   "marginMode": {
     "title": "Margin Mode",
