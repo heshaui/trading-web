@@ -22,7 +22,7 @@ export async function request<T>(
   // 特殊处理：fe-co-api 强制转发到 futures.imbit.work
   let url: string;
   if (endpoint.startsWith('/fe-co-api/')) {
-    url = `${CONTRACT_URL}${endpoint}`;
+    url = `${endpoint}`;
   } else {
     url = BASE_URL ? `${BASE_URL}${endpoint}`: `${endpoint}`;
   }
