@@ -185,13 +185,13 @@
     "tradeHistory": "成交记录",
     "positionColumn": {
       "contract": "合约",
-      "positionVolume": "仓位/可平(张)",
+      "positionVolume": "数量(张)",
       "openAvgPrice": "成本价",
       "indexPrice": "标记价格",
       "reducePrice":"预估强平价",
       "holdAmount": "保证金",
       "marginRate": "保证金率",
-      "realizedAmount": "盈亏/收益率",
+      "realizedAmount": "未实现盈亏/收益率",
       "openRealizedAmount": "开仓已实现盈亏",
       "marketClose": "市价平仓",
       "limitClose": "限价平仓",
@@ -252,7 +252,8 @@
       "id": "订单ID",
       "open": "开仓状态",
       "status": "状态",
-      "piece": "张"
+      "piece": "张",
+      "statusTip": "已用户主动撤销"
     },
     "tradeRecordColumn": {
       "openAvgPrice": "开仓均价",
@@ -292,7 +293,9 @@
       "crossMargin": "全仓",
       "isolatedMargin": "逐仓",
       "buy": "开多",
-      "sell": "平多",
+      "sell": "开空",
+      "sellClose": "平空",
+      "buyClose": "平多",
       "limit": "限价单",
       "market": "市价单",
       "forceLiquidation": "强制减仓",

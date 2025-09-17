@@ -9,10 +9,9 @@ import { getCurrentOrderList } from "@/services/contract";
 import dayjs from "dayjs";
 import { useWatch } from "antd/es/form/Form";
 import appStore from "@/store";
-import {  SideEnum, SideMap, Type, TypeMap } from "./type";
+import { SideEnum, SideMap, Type, TypeMap } from "./type";
 
 const NULL_PLACEHOLDER = "NULL"; // 定义一个特殊字符串代表 null
-
 
 interface CurrentCommissionColumns {
   symbol: string; // 合约
@@ -145,13 +144,14 @@ const CurrentCommission = ({ activeKey }: { activeKey: string }) => {
       dataIndex: "side",
       key: "side",
       render: (_: any, record: CurrentCommissionColumns) => {
-        const side = record.side as SideEnum;
+        const key = `${record.side}_${record.open}` as SideEnum;
+        const displaySide = SideMap[key];
         return (
           <div
             className="text-[14px] font-[500]"
-            style={{ color: SideMap[side].color }}
+            style={{ color: displaySide.color }}
           >
-            {t(SideMap[side].text)}
+            {t(displaySide.text)}
           </div>
         );
       },
@@ -179,7 +179,7 @@ const CurrentCommission = ({ activeKey }: { activeKey: string }) => {
       render: (_: any, record: CurrentCommissionColumns) => {
         return (
           <div className="text-[14px] text-[var(--text-color5)] font-[500]">
-            {record.volume ? `${record.volume} ${t("piece")}` : "--"} 
+            {record.volume ? `${record.volume} ${t("piece")}` : "--"}
           </div>
         );
       },

@@ -185,13 +185,13 @@
     "tradeHistory": "Trade History",
     "positionColumn": {
       "contract": "Symbol",
-      "positionVolume": "Size/AVL.(Cont)",
+      "positionVolume": "Quantity(Cont)",
       "openAvgPrice": "Entry Price",
       "indexPrice": "Mark Price",
       "reducePrice":"Liq. Price",
       "holdAmount": "Margin",
       "marginRate": "Margin Ratio",
-      "realizedAmount": "PNL/ROI",
+      "realizedAmount": "Unrealized P&L/ROI",
       "openRealizedAmount": "Settled PNL",
       "marketClose": "Market Close",
       "limitClose": "Limit Close",
@@ -251,7 +251,8 @@
       "id": "Order ID",
       "open": "Open Status",
       "status": "Status",
-      "piece": "Cont"
+      "piece": "Cont",
+      "statusTip": "User initiated revocation" 
     },
     "tradeRecordColumn": {
       "symbol": "Contract",
@@ -291,8 +292,10 @@
     "common": {
       "crossMargin": "Cross Margin",
       "isolatedMargin": "Isolated Margin",
-      "buy": "Buy",
-      "sell": "Sell",
+      "buy": "Open Long",
+      "sell": "Open Short",
+      "sellClose": "Close Short",
+      "buyClose": "Close Long",
       "limit": "Limit Order",
       "market": "Market Order",
       "forceLiquidation": "Force Liquidation",

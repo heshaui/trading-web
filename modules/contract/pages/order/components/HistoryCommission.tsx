@@ -148,12 +148,14 @@ const HistoryCommission = ({ activeKey }: { activeKey: string }) => {
       key: "side",
       align: "right",
       render: (_: any, record: HistoryCommissionColumns) => {
+        const key = `${record.side}_${record.open}` as SideEnum;
+        const displaySide = SideMap[key];
         return (
           <div
             className="text-[14px] font-[500]"
-            style={{ color: SideMap[record.side].color }}
+            style={{ color: displaySide.color }}
           >
-            {t(SideMap[record.side].text)}
+            {t(displaySide.text)}
           </div>
         );
       },

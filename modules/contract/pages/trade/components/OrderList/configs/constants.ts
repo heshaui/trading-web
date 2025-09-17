@@ -1,8 +1,11 @@
 // 方向枚举
 export enum Side {
-  BUY = "BUY",
-  SELL = "SELL",
+  BUY_OPEN = "BUY_OPEN",
+  SELL_OPEN = "SELL_OPEN",
+  BUY_CLOSE = "BUY_CLOSE",
+  SELL_CLOSE = "SELL_CLOSE",
 }
+
 
 // 仓位类型枚举
 export enum PositionType {
@@ -50,12 +53,20 @@ export const PositionTypeMap = {
 } as const;
 
 export const SideMap = {
-  [Side.BUY]: {
+  [Side.BUY_OPEN]: {
     text: "order.common.buy",
     color: "#4CAF50",
   },
-  [Side.SELL]: {
+  [Side.SELL_OPEN]: {
     text: "order.common.sell",
+    color: "#F44336",
+  },
+  [Side.BUY_CLOSE]: {
+    text: "order.common.buyClose",
+    color: "#4CAF50",
+  },
+  [Side.SELL_CLOSE]: {
+    text: "order.common.sellClose",
     color: "#F44336",
   },
 } as const;

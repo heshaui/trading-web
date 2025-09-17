@@ -2,7 +2,9 @@ import React from "react";
 import dayjs from "dayjs";
 import { TFunction } from "i18next";
 import { HistoryCommission } from "../hooks";
-import { SideMap, TypeMap, StatusMap } from "./constants";
+import { SideMap, TypeMap, StatusMap, Side } from "./constants";
+import { QuestionCircleOutlined } from "@ant-design/icons";
+import { Tooltip } from "antd";
 
 /**
  * 历史委托列表配置
@@ -29,7 +31,9 @@ export const createHistoryColumns = ({
     dataIndex: "type",
     key: "type",
     render: (_: any, record: HistoryCommission) => (
-      <div className="text-[12px] font-[500]">{t((TypeMap as any)[record.type])}</div>
+      <div className="text-[12px] font-[500]">
+        {t((TypeMap as any)[record.type])}
+      </div>
     ),
   },
   // 方向
@@ -37,14 +41,18 @@ export const createHistoryColumns = ({
     title: t("order.historyColumn.side"),
     dataIndex: "side",
     key: "side",
-    render: (_: any, record: HistoryCommission) => (
-      <div
-        className="text-[12px] font-[500]"
-        style={{ color: (SideMap as any)[record.side].color }}
-      >
-        {t((SideMap as any)[record.side].text)}
-      </div>
-    ),
+    render: (_: any, record: HistoryCommission) => {
+      const key = `${record.side}_${record.open}` as Side;
+      const displaySide = SideMap[key];
+      return (
+        <div
+          className="text-[12px] font-[500]"
+          style={{ color: displaySide.color }}
+        >
+          {t(displaySide.text)}
+        </div>
+      );
+    },
   },
   // 委托价格 为0显示市价
   {
@@ -52,7 +60,9 @@ export const createHistoryColumns = ({
     dataIndex: "price",
     key: "price",
     render: (_: any, record: HistoryCommission) => (
-      <div className="text-[12px] font-[500]">{record.price === 0 ? t("marketOrder") : record.price}</div>
+      <div className="text-[12px] font-[500]">
+        {record.price === 0 ? t("marketOrder") : record.price}
+      </div>
     ),
   },
   // 委托数量
@@ -61,7 +71,9 @@ export const createHistoryColumns = ({
     dataIndex: "volume",
     key: "volume",
     render: (_: any, record: HistoryCommission) => (
-      <div className="text-[12px] font-[500]">{record.volume} {t("order.historyColumn.piece")}</div>
+      <div className="text-[12px] font-[500]">
+        {record.volume} {t("order.historyColumn.piece")}
+      </div>
     ),
   },
   //成交数量
@@ -70,7 +82,9 @@ export const createHistoryColumns = ({
     dataIndex: "dealVolume",
     key: "dealVolume",
     render: (_: any, record: HistoryCommission) => (
-      <div className="text-[12px] font-[500]">{record.dealVolume} {t("order.historyColumn.piece")}</div>
+      <div className="text-[12px] font-[500]">
+        {record.dealVolume} {t("order.historyColumn.piece")}
+      </div>
     ),
   },
   // 成交均价
@@ -99,9 +113,9 @@ export const createHistoryColumns = ({
               : "",
         }}
       >
-        { record.realizedAmount > 0 ? record.realizedAmount : "0.00"}
+        {record.realizedAmount > 0 ? record.realizedAmount : "0.00"}
       </div>
-  ),
+    ),
   },
   // 手续费
   {
@@ -119,7 +133,13 @@ export const createHistoryColumns = ({
     key: "status",
     render: (_: any, record: HistoryCommission) => (
       <div className="text-[12px] font-[500]">
-        {t((StatusMap as any)[record.status])}
+        {/* 已取消 显示icon */}
+        {t((StatusMap as any)[record.status])}{" "}
+        {record.status === 4 && (
+          <Tooltip title={t("order.historyColumn.statusTip")}>
+            <QuestionCircleOutlined />
+          </Tooltip>
+        )}
       </div>
     ),
   },

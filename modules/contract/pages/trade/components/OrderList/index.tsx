@@ -190,7 +190,7 @@ const OrderListComponent = (props: any, ref: any) => {
   // ============ 各种表格的tab配置 ============
   const tabItems = [
     {
-      key: TAB_KEYS.POSITION,
+      key: TAB_KEYS.POSITION, // 仓位
       label: `${t("order.position")}(${positionNumber})`,
       children: (
         <Table<Position>
@@ -208,7 +208,7 @@ const OrderListComponent = (props: any, ref: any) => {
       ),
     },
     {
-      key: TAB_KEYS.ORDINARY_COMMISSION,
+      key: TAB_KEYS.ORDINARY_COMMISSION, // 当前委托(普通委托)
       label: `${t("order.currentCommission")}(${ordinaryCommissionNumber})`,
       children: (
         <Table<OrdinaryCommission>
@@ -244,7 +244,7 @@ const OrderListComponent = (props: any, ref: any) => {
     //   ),
     // },
     {
-      key: TAB_KEYS.HISTORY_COMMISSION,
+      key: TAB_KEYS.HISTORY_COMMISSION, // 历史委托
       label: `${t("order.historyCommission")}(${historyCommissionNumber})`,
       children: (
         <Table<any>
@@ -266,7 +266,7 @@ const OrderListComponent = (props: any, ref: any) => {
       ),
     },
     {
-      key: TAB_KEYS.PROFIT_LOSS,
+      key: TAB_KEYS.PROFIT_LOSS, // 盈亏记录
       label: `${t("order.profitLoss")}`,
       children: (
         <Table<TradeRecord>
@@ -284,7 +284,7 @@ const OrderListComponent = (props: any, ref: any) => {
       ),
     },
     {
-      key: TAB_KEYS.TRADE_HISTORY,
+      key: TAB_KEYS.TRADE_HISTORY, // 成交记录  
       label: `${t("order.tradeHistory")}`,
       children: (
         <Table<TradeHistory>
