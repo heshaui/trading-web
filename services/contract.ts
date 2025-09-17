@@ -363,13 +363,12 @@ export const cancelOrder = async (params: any) => {
 // 历史持仓,盈亏记录
 export const getHistoryPositionList = async (params: any) => {
   try {
-    const formattedParams = await formatParams(params);
     const response = await request<any>(
       "/fe-co-api/position/history_position_list",
       {
         method: "POST",
         headers: formatHeaders(),
-        body: JSON.stringify(formattedParams),
+        body: JSON.stringify(params),
       }
     );
     return response;

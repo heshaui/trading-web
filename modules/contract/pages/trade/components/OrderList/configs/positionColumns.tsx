@@ -3,7 +3,7 @@ import { Popover } from "antd";
 import { TFunction } from "i18next";
 import BigNumber from "bignumber.js";
 import { Position, QuickCloseParams } from "../hooks";
-import { SideMap, PositionTypeMap } from "./constants";
+import { PositionTypeMap } from "./constants";
 import QuickClose from "../components/QuickClose";
 
 interface PositionColumnConfig {
@@ -48,7 +48,9 @@ export const createPositionColumns = ({
             <div
               className="w-[2px] h-[11px]"
               style={{
-                backgroundColor: (SideMap as any)[record.orderSide].color,
+                backgroundColor: record.orderSide.includes("BUY")
+                  ? "#4CAF50"
+                  : "#F44336",
               }}
             ></div>
             <div> {record.symbol}</div>
@@ -62,28 +64,19 @@ export const createPositionColumns = ({
         </div>
       ),
     },
-    // 方向
-    {
-      title: t("order.positionColumn.orderSide"),
-      dataIndex: "orderSide",
-      key: "orderSide",
-      render: (_: any, record: Position) => (
-        <div
-          className="text-[12px] font-[500]"
-          style={{ color: (SideMap as any)[record.orderSide].color }}
-        >
-          {t((SideMap as any)[record.orderSide].text)}
-        </div>
-      ),
-    },
-    // 仓位/可平(张)
+    // 数量(张)
     {
       title: t("order.positionColumn.positionVolume"),
       dataIndex: "positionVolume",
       key: "positionVolume",
       render: (_: any, record: Position) => (
-        <div className="text-[12px] font-[500]">
-          {record.positionVolume}/{record.canCloseVolume}
+        <div
+          className="text-[12px] font-[500]"
+          style={{
+            color: record.orderSide.includes("BUY") ? "#4CAF50" : "#F44336",
+          }}
+        >
+          {record.positionVolume}
         </div>
       ),
     },
@@ -129,7 +122,7 @@ export const createPositionColumns = ({
         </div>
       ),
     },
-    // 占用保证金 item.holdAmount + marginCoin
+    // 保证金
     {
       title: Tips({
         content: t("order.positionColumn.holdAmount"),
@@ -157,7 +150,7 @@ export const createPositionColumns = ({
         </div>
       ),
     },
-    // 已实现盈亏(盈亏/收益率) unrealizedProfitLoss + returnRate
+    // 为实现实现盈亏(盈亏/收益率) unrealizedProfitLoss + returnRate
     {
       title: t("order.positionColumn.realizedAmount"),
       dataIndex: "realizedAmount",
@@ -174,7 +167,7 @@ export const createPositionColumns = ({
                 : "",
           }}
         >
-          <span
+          <div
             style={{
               color:
                 record.realizedAmount > 0
@@ -187,9 +180,8 @@ export const createPositionColumns = ({
             {new BigNumber(record.realizedAmount).toFormat(
               symbolPricePrecision
             )}
-          </span>
-          /
-          <span
+          </div>
+          <div
             style={{
               color:
                 record.returnRate > 0
@@ -200,33 +192,33 @@ export const createPositionColumns = ({
             }}
           >
             {new BigNumber(record.returnRate).toFormat(symbolPricePrecision)}%
-          </span>
+          </div>
         </div>
       ),
     },
     // 开仓已实现盈亏
-    {
-      title: t("order.positionColumn.openRealizedAmount"),
-      dataIndex: "openRealizedAmount",
-      key: "openRealizedAmount",
-      render: (_: any, record: Position) => (
-        <div
-          className="text-[12px] font-[500]"
-          style={{
-            color:
-              record.openRealizedAmount > 0
-                ? "#4CAF50"
-                : record.openRealizedAmount < 0
-                ? "#F44336"
-                : "",
-          }}
-        >
-          {new BigNumber(record.openRealizedAmount).toFormat(
-            symbolPricePrecision
-          )}
-        </div>
-      ),
-    },
+    // {
+    //   title: t("order.positionColumn.openRealizedAmount"),
+    //   dataIndex: "openRealizedAmount",
+    //   key: "openRealizedAmount",
+    //   render: (_: any, record: Position) => (
+    //     <div
+    //       className="text-[12px] font-[500]"
+    //       style={{
+    //         color:
+    //           record.openRealizedAmount > 0
+    //             ? "#4CAF50"
+    //             : record.openRealizedAmount < 0
+    //             ? "#F44336"
+    //             : "",
+    //       }}
+    //     >
+    //       {new BigNumber(record.openRealizedAmount).toFormat(
+    //         symbolPricePrecision
+    //       )}
+    //     </div>
+    //   ),
+    // },
     // 快速平仓
     {
       title: t("order.positionColumn.quickClose"),

@@ -2,7 +2,7 @@ import React from "react";
 import dayjs from "dayjs";
 import { TFunction } from "i18next";
 import { HistoryCommission } from "../hooks";
-import { SideMap, TypeMap, StatusMap } from "./constants";
+import { SideMap, TypeMap, StatusMap, Side } from "./constants";
 
 /**
  * 历史委托列表配置
@@ -37,14 +37,18 @@ export const createHistoryColumns = ({
     title: t("order.historyColumn.side"),
     dataIndex: "side",
     key: "side",
-    render: (_: any, record: HistoryCommission) => (
+    render: (_: any, record: HistoryCommission) => {
+      const key = `${record.side}_${record.open}` as Side;
+      const displaySide = SideMap[key];
+      return (
       <div
         className="text-[12px] font-[500]"
-        style={{ color: (SideMap as any)[record.side].color }}
+        style={{ color: displaySide.color }}
       >
-        {t((SideMap as any)[record.side].text)}
+        {t(displaySide.text)}
       </div>
-    ),
+    );
+    },
   },
   // 委托价格 为0显示市价
   {

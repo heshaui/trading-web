@@ -3,7 +3,7 @@ import dayjs from "dayjs";
 import { TFunction } from "i18next";
 import BigNumber from "bignumber.js";
 import { TradeHistory } from "../hooks";
-import { SideMap, RoleMap } from "./constants";
+import { SideMap, RoleMap, Side } from "./constants";
 
 /**
  * 成交历史列表配置
@@ -49,14 +49,18 @@ export const createTradeHistoryColumns = ({
     title: t("order.tradeHistoryColumn.side"),
     dataIndex: "side",
     key: "side",
-    render: (_: any, record: TradeHistory) => (
-      <div
-        className="text-[12px] font-[500]"
-        style={{ color: (SideMap as any)[record.side].color }}
-      >
-        {t((SideMap as any)[record.side].text)}
-      </div>
-    ),
+    render: (_: any, record: TradeHistory) => {
+      const key = `${record.side}_${record.open}` as Side;
+      const displaySide = SideMap[key];
+      return (
+        <div
+          className="text-[12px] font-[500]"
+          style={{ color: displaySide.color }}
+        >
+          {t(displaySide.text)}
+        </div>
+      );
+    },
   },
   // 委托数量
   {
@@ -65,7 +69,9 @@ export const createTradeHistoryColumns = ({
     key: "volume",
     align: "right" as const,
     render: (_: any, record: TradeHistory) => (
-      <div className="text-[12px] font-[500]">{record.volume} {t("order.tradeHistoryColumn.piece")}</div>
+      <div className="text-[12px] font-[500]">
+        {record.volume} {t("order.tradeHistoryColumn.piece")}
+      </div>
     ),
   },
   // 角色
@@ -74,7 +80,9 @@ export const createTradeHistoryColumns = ({
     dataIndex: "role",
     key: "role",
     render: (_: any, record: TradeHistory) => (
-      <div className="text-[12px] font-[500]">{(RoleMap as any)[record.role]}</div>
+      <div className="text-[12px] font-[500]">
+        {(RoleMap as any)[record.role]}
+      </div>
     ),
   },
   // 手续费

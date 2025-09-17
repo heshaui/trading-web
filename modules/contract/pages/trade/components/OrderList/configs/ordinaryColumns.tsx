@@ -4,7 +4,7 @@ import { SvgIcon } from "@/components/icon";
 import dayjs from "dayjs";
 import { TFunction } from "i18next";
 import { OrdinaryCommission } from "../hooks";
-import { SideMap, TypeMap } from "./constants";
+import { Side, SideMap, TypeMap } from "./constants";
 
 interface OrdinaryColumnConfig {
   t: TFunction;
@@ -35,14 +35,18 @@ export const createOrdinaryColumns = ({
     title: t("order.ordinaryColumn.side"),
     dataIndex: "side",
     key: "side",
-    render: (_: any, record: OrdinaryCommission) => (
-      <div
-        className={`text-[12px] font-[500]`}
-        style={{ color: (SideMap as any)[record.side].color }}
-      >
-        {t((SideMap as any)[record.side].text)}
-      </div>
-    ),
+    render: (_: any, record: OrdinaryCommission) => {
+      const key = `${record.side}_${record.open}` as Side;
+      const displaySide = SideMap[key];
+      return (
+        <div
+          className={`text-[12px] font-[500]`}
+          style={{ color: displaySide.color }}
+        >
+          {t(displaySide.text)}
+        </div>
+      );
+    },
   },
   //数量
   {

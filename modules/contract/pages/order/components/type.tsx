@@ -15,17 +15,27 @@ export const TypeMap = {
 };
 
 export enum SideEnum {
-  BUY = "BUY",
-  SELL = "SELL",
+  BUY_OPEN = "BUY_OPEN",
+  SELL_OPEN = "SELL_OPEN",
+  BUY_CLOSE = "BUY_CLOSE",
+  SELL_CLOSE = "SELL_CLOSE",
 }
 
 export const SideMap = {
-  [SideEnum.BUY]: {
+  [SideEnum.BUY_OPEN]: {
     text: "order.common.buy",
     color: "#4CAF50",
   },
-  [SideEnum.SELL]: {
+  [SideEnum.SELL_OPEN]: {
     text: "order.common.sell",
+    color: "#F44336",
+  },
+  [SideEnum.BUY_CLOSE]: {
+    text: "order.common.buyClose",
+    color: "#4CAF50",
+  },
+  [SideEnum.SELL_CLOSE]: {
+    text: "order.common.sellClose",
     color: "#F44336",
   },
 };
