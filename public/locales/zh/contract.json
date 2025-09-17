@@ -252,7 +252,8 @@
       "id": "订单ID",
       "open": "开仓状态",
       "status": "状态",
-      "piece": "张"
+      "piece": "张",
+      "statusTip": "已用户主动撤销"
     },
     "tradeRecordColumn": {
       "openAvgPrice": "开仓均价",

@@ -251,7 +251,8 @@
       "id": "Order ID",
       "open": "Open Status",
       "status": "Status",
-      "piece": "Cont"
+      "piece": "Cont",
+      "statusTip": "User initiated revocation" 
     },
     "tradeRecordColumn": {
       "symbol": "Contract",

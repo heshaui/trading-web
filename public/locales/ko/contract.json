@@ -246,7 +246,8 @@
       "id": "주문 ID",
       "open": "진입 상태",
       "status": "상태",
-      "piece": "계약"
+      "piece": "계약",
+      "statusTip": "사용자 사전 취소"
     },
     "tradeRecordColumn": {
       "openAvgPrice": "평균 진입 가격",
