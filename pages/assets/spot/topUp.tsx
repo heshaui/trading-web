@@ -246,23 +246,17 @@ const TopUpPage = () => {
       const res = await getcoinExtList2(coinId);
       if (res.code === "0") {
         const coinExtList = res.data.map((item: any) => {
-          const protocol = coinExtAll.find(
-            (protocol: any) => protocol.id === item.protocolId
-          );
+        //   const protocol = coinExtAll.find(
+        //     (protocol: any) => protocol.id === item.protocolId
+        //   );
         return {
-            ...item,
-            ...protocol,
-            label: `${protocol?.protocolName || "--"}(${protocol?.protocol || "--"})`,
-            value: protocol?.symbol || null,
+              ...item,
+            label: `${item?.protocolName || "--"}(${item?.protocol || "--"})`,
+            value: item?.symbol || null,
             confirmCount: item.confirms && item.confirms > 0 ? item.confirms : 1,
             coinId: coinId,
           };
         }).filter((item: any) => item.value !== null)
-        // .filter((item: any) => {
-        //   const chainType = chainTypeList.find((chain: any) => chain.chainType === item.symbol)
-        //   return chainType
-        // })
-        // console.log('币种对应网络(链)', coinExtList, chainTypeList);
         setCoinExtSelect(coinExtList);
       } else {
         toast.error(res.message);
@@ -346,9 +340,9 @@ const TopUpPage = () => {
     const memoTag = option.memoTag === 1
     setIsMemo(memoTag)
     // 获取币种对应网络
-    if (!coinExtAll || coinExtAll.length === 0) {
-      await getCoinExtAllList();
-    }
+    // if (!coinExtAll || coinExtAll.length === 0) {
+    //   await getCoinExtAllList();
+    // }
     await getCoinExt(option.coinId)
 
 
@@ -526,7 +520,7 @@ const TopUpPage = () => {
   }, []);
   useEffect(() => {
     getTopUpCoinAllList();
-    getCoinExtAllList();
+    // getCoinExtAllList();
     // getChainsAll();
   }, [])
   // 添加 useEffect 来加载历史记录
@@ -546,8 +540,7 @@ const TopUpPage = () => {
   useEffect(() => {
     if (!router?.isReady) return;
     if (routeAppliedRef.current) return;
-    if (coinList.length === 0) return;
-    if (!coinExtAll || coinExtAll.length === 0) return;
+
     // const verified11 = currentUserInfo?.verifiedRechargeStatus === 1 && currentUserInfo?.realnessStatus === 1 //已认证且实名-允许
     const verified10 = userInfo?.verifiedRechargeStatus === 1 && userInfo?.realnessStatus !== 1 //已认证且未实名-判断unverifiedRechargeStatus
     // const unverifie10 = userInfo?.unverifiedRechargeStatus === 1 && userInfo?.realnessStatus === 0 //未认证且未实名-允许
@@ -558,6 +551,8 @@ const TopUpPage = () => {
     const needsMerchantRecharge = (userInfo?.verifiedRechargeStatus !== 1 && userInfo?.unverifiedRechargeStatus !== 1) ||
       (unverifie11 && userInfo?.verifiedRechargeStatus !== 1)
     if (needsMerchantRecharge || needsKyc) return
+    if (coinList.length === 0) return;
+    if (!coinExtAll || coinExtAll.length === 0) return;
 
     let target: any | undefined;
     if (coinId !== undefined && coinId !== null && coinId !== "") {
