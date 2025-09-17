@@ -30,6 +30,7 @@ import appStore from "@/store";
 import { useUserConfig } from "@/hooks/useUserConfig";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/router";
+import { usePosition } from "../OrderList/hooks/usePosition";
 const { Option } = Select;
 
 interface ContractTradingPanelProps {
@@ -64,6 +65,7 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
   const [form] = Form.useForm();
       const { isLoggedIn } = useAuth();
        const router = useRouter();
+
   // 状态管理 - 按固定顺序声明所有状态
   const [currentCategory, setCurrentCategory] = useState<1 | 2 | 3>(1);
   const [transactionType, setTransactionType] = useState<1 | 2>(1);
@@ -114,7 +116,12 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
   const { userConfig } = useUserConfig();
   const {symbolPricePrecision,priceRange,maxLimitMoney,maxLimitVolume,maxMarketMoney,maxMarketVolume,minOrderVolume,minOrderMoney} =currentContractInfo.coinResultVo
 
-  
+  // 获取持仓数据
+  const { positions, getPosition } = usePosition({
+    contractId: currentContractInfo?.id
+  });
+
+
 
   // 获取当前订单类型
   const getOrderType = useCallback(() => {
@@ -202,6 +209,19 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
 
     return Math.max(0, maxQuantity);
   }, [priceData, orderBookData, availableBalance, leverageLevel, currentContractInfo, price, currentCategory]);
+
+  // 计算可平数量 - 平仓时使用
+  const calculateCloseableQuantity = useCallback((side: "BUY" | "SELL") => {
+    if (!positions || positions.length === 0) return 0;
+
+    // 找到对应方向的持仓
+    const position = positions.find(pos =>
+      pos.contractId === currentContractInfo?.id &&
+      pos.orderSide === side
+    );
+
+    return position?.canCloseVolume || 0;
+  }, [positions, currentContractInfo?.id]);
 
   // 根据表格实现成本计算 - 区分限价单和市价单
   const calculateCost = useCallback((side?: "BUY" | "SELL") => {
@@ -426,11 +446,26 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
   // 处理百分比滑块变化
   const handlePercentageChange = (value: number) => {
     setPercentage(value);
-    // 根据当前交易类型计算最大数量
-    const maxQuantity = transactionType === 1 ? calculateMaxQuantity("BUY") : calculateMaxQuantity("SELL");
+    // 根据当前交易类型和开仓/平仓状态计算最大数量
+    let maxQuantity = 0;
+    if (transactionType === 1) {
+      // 开仓模式
+      maxQuantity = calculateMaxQuantity("BUY");
+    } else {
+      // 平仓模式 - 根据当前选择的买入/卖出方向选择对应的可平数量
+      // 注意：平空使用SELL持仓，平多使用BUY持仓
+      maxQuantity = calculateCloseableQuantity("SELL"); // 这里需要根据具体的买卖方向调整
+    }
     const newQuantity = (maxQuantity * value) / 100;
     setQuantity(newQuantity);
   };
+
+  // 获取持仓数据 - 合约变化时刷新
+  useEffect(() => {
+    if (currentContractInfo?.id && getPosition) {
+      getPosition({ showLoading: false, showMessage: false });
+    }
+  }, [currentContractInfo?.id, getPosition]);
 
   const handleSettings = () => {
     setShowTradingSettingsDrawer(true);
@@ -1022,13 +1057,23 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
                     <span style={{color:'#00C788'}}>
                       {transactionType === 2 ? t('tradingPanel.canCloseShort') : t('tradingPanel.canBuy')}
                     </span>
-                    <span>{formatNumber(calculateMaxQuantity("BUY"), 0 )} {currentContractInfo.coUnit}  {t("tradingPanel.unit")}</span>
+                    <span>
+                      {transactionType === 2
+                        ? formatNumber(calculateCloseableQuantity("SELL"), 0)
+                        : formatNumber(calculateMaxQuantity("BUY"), 0)
+                      } {currentContractInfo.coUnit} {t("tradingPanel.unit")}
+                    </span>
                   </div>
                   <div className="flex items-center gap-[4px]">
                     <span style={{color:'#FF4D4F'}}>
-                      {transactionType === 2 ? t('tradingPanel.canCloseLong') : t('tradingPanel.canSell')} 
+                      {transactionType === 2 ? t('tradingPanel.canCloseLong') : t('tradingPanel.canSell')}
                     </span>
-                    <span>{formatNumber(calculateMaxQuantity("SELL"),0)} {currentContractInfo.coUnit}  {t("tradingPanel.unit")}</span>
+                    <span>
+                      {transactionType === 2
+                        ? formatNumber(calculateCloseableQuantity("BUY"), 0)
+                        : formatNumber(calculateMaxQuantity("SELL"), 0)
+                      } {currentContractInfo.coUnit} {t("tradingPanel.unit")}
+                    </span>
                   </div>
                 </div>
               </div>
