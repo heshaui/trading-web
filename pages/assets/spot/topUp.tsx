@@ -540,17 +540,7 @@ const TopUpPage = () => {
   useEffect(() => {
     if (!router?.isReady) return;
     if (routeAppliedRef.current) return;
-
-    // const verified11 = currentUserInfo?.verifiedRechargeStatus === 1 && currentUserInfo?.realnessStatus === 1 //已认证且实名-允许
-    const verified10 = userInfo?.verifiedRechargeStatus === 1 && userInfo?.realnessStatus !== 1 //已认证且未实名-判断unverifiedRechargeStatus
-    // const unverifie10 = userInfo?.unverifiedRechargeStatus === 1 && userInfo?.realnessStatus === 0 //未认证且未实名-允许
-    const unverifie11 = userInfo?.unverifiedRechargeStatus === 1 && userInfo?.realnessStatus === 1 //未认证且实名-判断verifiedRechargeStatus
-
-    const needsKyc = verified10 && userInfo?.unverifiedRechargeStatus !== 1
-    // const needsGoogleAuth = !userInfo?.isGoogleAuth || !userInfo?.googleCode
-    const needsMerchantRecharge = (userInfo?.verifiedRechargeStatus !== 1 && userInfo?.unverifiedRechargeStatus !== 1) ||
-      (unverifie11 && userInfo?.verifiedRechargeStatus !== 1)
-    if (needsMerchantRecharge || needsKyc) return
+    if (isNotAllowToUp) return
     if (coinList.length === 0) return;
     if (!coinExtAll || coinExtAll.length === 0) return;
 
@@ -566,7 +556,7 @@ const TopUpPage = () => {
       // 触发与用户选择相同的流程：更新历史、获取网络并进入步骤2
       coinChange(target.value ?? target.coinId, target);
     }
-  }, [router?.isReady, coinId, coinName, coinList, coinExtAll]);
+  }, [router?.isReady, coinId, coinName, coinList, coinExtAll,isNotAllowToUp]);
 
   const steps = [
     {

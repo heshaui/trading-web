@@ -5,7 +5,7 @@ import { Input, Tooltip, ConfigProvider, Table, Form, Checkbox } from 'antd';
 import { Iconify } from "@/components/icon"
 import type { ColumnsType } from "antd/es/table";
 import dayjs from 'dayjs';
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useRouter } from 'next/router';
 import { toast } from "sonner";
 import { add, cut, nul, roundDown } from '@/utils'
@@ -18,7 +18,7 @@ import { ROUTER_KEY_ASSETS, ROUTER_KEY_SPOT } from '@/config/apiConfig';
 import { observer } from 'mobx-react-lite';
 import { useCoinList } from '@/hooks/use-coinList';
 import Image from 'next/image';
-import { getRate } from '@/utils/getUseRate';
+import { getRate, nulCoinRate } from '@/utils/getUseRate';
 import appStore from '@/store';
 
 interface DataType {
@@ -29,7 +29,8 @@ interface DataType {
     coinId: string,
     coinName: string,
     iconUrl: string,
-    nameDefault: string
+    nameDefault: string,
+    rateValue:number,
 }
 type Props = {
     orderUpdateFlag?: number
@@ -55,7 +56,13 @@ const AssetsMainPage = observer(({ orderUpdateFlag, updateAssets }: Props) => {
     const [hideZero, setHideZero] = useState(false);
     const [form] = Form.useForm();
     const updateOrder = appStore.getUpdateFlag()
-
+    const rateInfo = useMemo(() => {
+        const rateInfo = rateData.find((item: any) => item.shortName === rateKey);
+        return {
+          accuracy: rateInfo?.accuracy || 2,
+          symbol: rateInfo?.symbol || '--', // 汇率符号
+        }
+      }, [rateKey, rateData])
     const columns: ColumnsType<DataType> = [
         {
             title: t('spot.columns.coin'), //"币种",
@@ -95,21 +102,31 @@ const AssetsMainPage = observer(({ orderUpdateFlag, updateAssets }: Props) => {
             align: "center",
             // width: 128,
             render: (_text, record) => {
-                const coin = coinList.find((item: any) => item.coinName === record.coinName);  // 获取币种信息
+                const coin = coinList.find(
+                  (item: any) => item.coinName === record.coinName
+                ); // 获取币种信息
                 const text = add(record.balance || 0, record.releaseBalance || 0);
                 const text2 = add(text, record.frozenBalance || 0);
-                const rateKeyName = rateKey.split('-')[0]; // 获取汇率key
-                const { ratetext } = getRate(record.coinName, text2, rateKeyName);
-                return <p className='flex-y align-end'>
-                    <span>{text2 ? roundDown(text2, coin?.unitScale) : '0'}</span>
-                    <span className='ltr-text'>{record.coinName ? ratetext : ''}
-                    </span>
-                </p>
-            },
+                // 添加默认值和检查
+                // const rateKeyName = rateKey.split("-")[0].trim();
+        
+                // 确保 rateKeyName 有值
+                // const { rate,symbol } = getRate(record.coinName, text2, rateKeyName);
+                // const accuracy = rateData.find((item: any) => item.shortName === rateKeyName)?.accuracy;
+                const fiatRate = nulCoinRate(Number(text2) || 0, record.rateValue || 0).rate
+                return (
+                  <p className="flex-y align-end">
+                    <span>{text2 ? roundDown(text2, coin?.unitScale) : "0"}</span>
+                    <span className="ltr-text">{rateInfo.symbol || '--'}{record.coinName ? roundDown(fiatRate, rateInfo.accuracy || 2) : ""}</span>
+                  </p>
+                );
+              },
             sorter: (a, b) => {
                 const totalA = add(add(a.balance || 0, a.releaseBalance || 0), a.frozenBalance || 0);
+                const aUsdt = nul(totalA, a.rateValue || 0);
                 const totalB = add(add(b.balance || 0, b.releaseBalance || 0), b.frozenBalance || 0);
-                return totalA - totalB
+                const bUsdt = nul(totalB, b.rateValue || 0);
+                return bUsdt - aUsdt;
             },
         },
         {
@@ -237,9 +254,13 @@ const AssetsMainPage = observer(({ orderUpdateFlag, updateAssets }: Props) => {
         const value = e.target.checked
         if (value && initTableData.length > 0) {
             const newData = initTableData.filter(item => {
-                const { rate } = getRate(item.coinName, item.balance);
+                const total = add(
+                    add(item.balance || 0, item.releaseBalance || 0),
+                    item.frozenBalance || 0
+                );
+                const aUsdt = nul(total, item.rateValue || 0);
                 // 确保 rate 是数字且大于 1
-                return Number(rate) >= 1
+                return Number(aUsdt) >= 1
             });
             setTableData(newData);
         } else {
@@ -251,8 +272,27 @@ const AssetsMainPage = observer(({ orderUpdateFlag, updateAssets }: Props) => {
         try {
             const res = await getUserBalanceAll();
             if (res.code === '0') {
-                setInitTableData(res.data || []);
-                setTableData(res.data || []);
+                const sortData = res.data.sort((a: any, b: any) => {
+                    const aTotal = add(
+                        add(a.balance || 0, a.releaseBalance || 0),
+                        a.frozenBalance || 0
+                    );
+                    const aUsdt = nul(aTotal, a.rateValue || 0);
+                    const bTotal = add(
+                        add(b.balance || 0, b.releaseBalance || 0),
+                        b.frozenBalance || 0
+                    );
+                    const bUsdt = nul(bTotal, b.rateValue || 0);
+                    return bUsdt - aUsdt;
+                }).filter((item: any) => {
+                    const total = add(
+                        add(item.balance || 0, item.releaseBalance || 0),
+                        item.frozenBalance || 0
+                    );
+                    return total > 0;;
+                });
+                setInitTableData(sortData || []);
+                setTableData(sortData || []);
                 setTotal(res.data.total);
             }
         } catch (error) {

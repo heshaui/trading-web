@@ -31,7 +31,7 @@ import { ROUTER_KEY_ASSETS, ROUTER_KEY_SPOT } from "@/config/apiConfig";
 import appStore from "@/store";
 import { observer } from "mobx-react-lite";
 import { useCoinList } from "@/hooks/use-coinList";
-import { getRate, getCoinRate, getCoinRound ,nulCoinRate,nulRate} from "@/utils/getUseRate";
+import { getRate, getCoinRate, getCoinRound, nulCoinRate, nulRate } from "@/utils/getUseRate";
 import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
 import Image from "next/image";
 import { DataType } from "@/type/assets/assetsAccount/assets";
@@ -77,18 +77,18 @@ const AssetsMainPage = observer(() => {
   const balanceDataRef = useRef<WebSocketService | null>(null);
   const pingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const financialConfig = appStore.financialConfig;
-// 获取法币精度
-  const accuracy=useMemo(()=>{
-    const accuracyNum=rateData.find((item: any) => item.shortName === rateKey)?.accuracy;
-    return accuracyNum|| 2
-  },[rateKey,rateData])
-  const rateInfo=useMemo(()=>{
-    const rateInfo=rateData.find((item: any) => item.shortName === rateKey);
+  // 获取法币精度
+  // const accuracy = useMemo(() => {
+  //   const accuracyNum = rateData.find((item: any) => item.shortName === rateKey)?.accuracy;
+  //   return accuracyNum || 2
+  // }, [rateKey, rateData])
+  const rateInfo = useMemo(() => {
+    const rateInfo = rateData.find((item: any) => item.shortName === rateKey);
     return {
-      accuracy:rateInfo?.accuracy|| 2,
-      symbol:rateInfo?.symbol|| '--', // 汇率符号
+      accuracy: rateInfo?.accuracy || 2,
+      symbol: rateInfo?.symbol || '--', // 汇率符号
     }
-  },[rateKey,rateData])
+  }, [rateKey, rateData])
   const columns: ColumnsType<DataType> = [
     {
       title: t("assetsAccount.currency"), //"币种",
@@ -140,7 +140,7 @@ const AssetsMainPage = observer(() => {
         return (
           <p className="flex-y align-end">
             <span>{text2 ? roundDown(text2, coin?.unitScale) : "0"}</span>
-            <span className="ltr-text">{rateInfo.symbol||'--'}{record.coinName ? roundDown(fiatRate, accuracy||2) : ""}</span>
+            <span className="ltr-text">{rateInfo.symbol || '--'}{record.coinName ? roundDown(fiatRate, rateInfo.accuracy || 2) : ""}</span>
           </p>
         );
       },
@@ -149,11 +149,13 @@ const AssetsMainPage = observer(() => {
           add(a.balance || 0, a.releaseBalance || 0),
           a.frozenBalance || 0
         );
+        const aUsdt = nul(totalA, a.rateValue || 0);
         const totalB = add(
           add(b.balance || 0, b.releaseBalance || 0),
           b.frozenBalance || 0
         );
-        return totalA - totalB;
+        const bUsdt = nul(totalB, b.rateValue || 0);
+        return bUsdt - aUsdt;
       },
     },
     {
@@ -220,8 +222,8 @@ const AssetsMainPage = observer(() => {
             label: t("assetsAccount.button.flash"),
             key: "flash",
             className: `${coin?.isTradeConvert === 0
-                ? styles.tip_color2
-                : styles.theme_color
+              ? styles.tip_color2
+              : styles.theme_color
               } font-12 font-w-500`,
             disabled: coin?.isTradeConvert === 0,
             onClick: () => goFlash(record.coinName),
@@ -417,8 +419,22 @@ const AssetsMainPage = observer(() => {
     try {
       const res = await getUserBalanceAll();
       if (res.code === "0") {
-        setInitTableData(res.data || []);
-        setTableData(res.data || []);
+        const sortData = res.data.sort((a: any, b: any) => {
+          const aTotal = add(
+            add(a.balance || 0, a.releaseBalance || 0),
+            a.frozenBalance || 0
+          );
+          const aUsdt = nul(aTotal, a.rateValue || 0);
+
+          const bTotal = add(
+            add(b.balance || 0, b.releaseBalance || 0),
+            b.frozenBalance || 0
+          );
+          const bUsdt = nul(bTotal, b.rateValue || 0);
+          return bUsdt - aUsdt;
+        });
+        setInitTableData(sortData || []);
+        setTableData(sortData || []);
         // const totalUsd = res.data.reduce((sum: number, curr: any) => {
         //     const coinTotal = add(
         //         add(curr.balance || 0, curr.releaseBalance || 0),
@@ -532,8 +548,8 @@ const AssetsMainPage = observer(() => {
         //   res.data?.[0]?.balance || 0,
         //   rateKeyName
         // );
-        const usdtRate=tableData.find((item:any)=>item.coinName==='USDT')
-        const usdRate=nulCoinRate(res.data?.[0]?.balance||0,usdtRate?.rateValue||1)
+        const usdtRate = tableData.find((item: any) => item.coinName === 'USDT')
+        const usdRate = nulCoinRate(res.data?.[0]?.balance || 0, usdtRate?.rateValue || 1)
 
         setBalanceDay({
           balanceAll: res.data?.[0]?.balance || 0,
@@ -686,11 +702,11 @@ const AssetsMainPage = observer(() => {
                 curr.gift
               );
               const coinUsdtToday = nul(coinTotalToday, curr.rateValue || 0);
-    
+
               return sum + Number(coinUsdtToday) || 0;
             }, 0);
             // 汇总法币：逐币种 balance * rateValue 转法币相加
-            const usdBalanceSum =filteredTableData.reduce((sum: number, curr: any) => {
+            const usdBalanceSum = filteredTableData.reduce((sum: number, curr: any) => {
               const coinTotal = add(
                 add(curr.balance || 0, curr.releaseBalance || 0),
                 curr.frozenBalance || 0
@@ -698,7 +714,7 @@ const AssetsMainPage = observer(() => {
               const { rate } = nulCoinRate(Number(coinTotal) || 0, curr.rateValue || 0);
               return sum + Number(rate) || 0;
             }, 0);
-            const usdTodayEarningsSum =filteredTableData.reduce((sum: number, curr: any) => {
+            const usdTodayEarningsSum = filteredTableData.reduce((sum: number, curr: any) => {
               const coinTotal = add(
                 add(curr.balance || 0, curr.releaseBalance || 0),
                 curr.frozenBalance || 0
@@ -887,15 +903,15 @@ const AssetsMainPage = observer(() => {
                     </span>
                     <span>
                       {/* ≈  {balanceAll.usdBalance}&nbsp;{rateKey ? rateKey.split('-')[0].trim() : '--'} */}
-                      ≈ 
-                      {roundDown(balanceAll.usdBalance || 0, accuracy||2)}&nbsp;
+                      ≈
+                      {roundDown(balanceAll.usdBalance || 0, rateInfo.accuracy || 2)}&nbsp;
                       {!rateKeyName ||
                         rateKeyName === "" ||
                         rateKeyName === "NaN"
                         ? "--"
                         : rateKeyName}
                     </span>
-                    
+
                   </p>
                 </li>
               </Skeleton>
@@ -926,7 +942,7 @@ const AssetsMainPage = observer(() => {
                     <span>
                       ≈
                       {/* &nbsp;{waxAndWane(balanceAll?.usdBalance || 0, balanceDay?.usdBalanceAll || 0, todayEarnings?.usdBalance || 0, todayEarnings?.usdWithdraw || 0) || '0'}&nbsp; */}
-                      &nbsp;{roundDown(todayProfitFiat || 0, accuracy||2)}&nbsp;
+                      &nbsp;{roundDown(todayProfitFiat || 0, rateInfo.accuracy || 2)}&nbsp;
                       {/* USD */}
                       {/* {rateKey?rateKey.split('-')[0].trim() : '--'} */}
                       {!rateKeyName ||
