@@ -4,6 +4,7 @@ import "@/styles/public_custom.css";
 // 公告中心
 import "@/styles/bulletinCenterPublic.css";
 import type { AppProps } from "next/app";
+import Head from "next/head";
 import { ConfigProvider } from "antd";
 import { useState, useEffect } from "react";
 import { appWithTranslation, useTranslation } from "next-i18next";
@@ -20,6 +21,7 @@ import { useFavicon } from "@/hooks/useFavicon";
 import appStore from "@/store";
 import { getFinancialConfig } from "@/services/financial";
 import { getConfig } from "@/services/flash";
+import { LOCAL_STORAGE_KEY } from "@/config/apiConfig";
 
 function App({ Component, pageProps }: AppProps) {
   // 使用自定义钩子获取主题
@@ -32,6 +34,9 @@ function App({ Component, pageProps }: AppProps) {
   // const { t } = useTranslation(['common', 'home_menu']);
   const { t, i18n } = useTranslation("common");
   const router = useRouter();
+  const allConfig = appStore.getKvConfigAll();
+  const [siteTitle, setSiteTitle] = useState<string>("");
+
   // 使用 ready 状态来确保 i18n 已初始化
   useEffect(() => {
     if (i18n.isInitialized && router.locale) {
@@ -154,15 +159,53 @@ function App({ Component, pageProps }: AppProps) {
     // 初始加载
     fetchLanguageFiles();
   }, [i18n]); // 仅将i18n作为依赖项
-
+  // 设置网站标题
+  // useEffect(() => {
+  //   try {
+  //     let exchangeName: string | undefined = allConfig?.tenant_cache_name;
+  //     if (!exchangeName) {
+  //       const kv = localStorage.getItem(LOCAL_STORAGE_KEY.KV_CONFIG);
+  //       if (kv) {
+  //         exchangeName = JSON.parse(kv)?.tenant_cache_name;
+  //       }
+  //     }
+  //     if (exchangeName && typeof document !== 'undefined') {
+  //       document.title = exchangeName;
+  //     }
+  //   } catch (_) {
+  //     // ignore
+  //   }
+  // }, [allConfig?.tenant_cache_name]);
+  useEffect(() => {
+    const setTitle = () => {
+      try {
+        let name = allConfig?.tenant_cache_name;
+        if (!name) {
+          const kv = localStorage.getItem(LOCAL_STORAGE_KEY.KV_CONFIG);
+          if (kv) name = JSON.parse(kv)?.tenant_cache_name;
+        }
+        if (name) {
+          document.title = name;
+          setSiteTitle(name);
+        }
+      } catch { }
+    };
+    setTitle();
+    router.events.on('routeChangeComplete', setTitle);
+    return () => router.events.off('routeChangeComplete', setTitle);
+  }, [router.events, allConfig?.tenant_cache_name]);
   return (
     <AuthProvider>
       <NavigationProvider>
         <ConfigProvider theme={theme}>
+          <Head>
+            <title>{siteTitle}</title>
+          </Head>
           <div className={isDarkMode ? "dark" : ""}>
             {shouldShowMenu && <HomeMenu />}
 
             <Component {...pageProps} isLoggedIn={isLoggedIn} />
+
 
             {shouldShowFooter && <Footer />}
             <Toaster />
