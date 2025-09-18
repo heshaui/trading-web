@@ -28,6 +28,7 @@ import { encryptData } from "@/utils/encrypt";
 import styles from "./styles.module.css";
 import appStore from "@/store";
 import { useUserConfig } from "@/hooks/useUserConfig";
+import { Side } from "../OrderList/configs/constants";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/router";
 import { usePosition } from "../OrderList/hooks/usePosition";
@@ -214,10 +215,10 @@ const ContractTradingPanel: React.FC<ContractTradingPanelProps> = observer(({
   const calculateCloseableQuantity = useCallback((side: "BUY" | "SELL") => {
     if (!positions || positions.length === 0) return 0;
 
-    // 找到对应方向的持仓
+    // 找到对应方向的持仓 - 需要匹配开仓方向
     const position = positions.find(pos =>
       pos.contractId === currentContractInfo?.id &&
-      pos.orderSide === side
+      pos.orderSide === (side === "BUY" ? Side.BUY_OPEN : Side.SELL_OPEN)
     );
 
     return position?.canCloseVolume || 0;
